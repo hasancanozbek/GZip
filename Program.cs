@@ -1,4 +1,4 @@
-﻿
+
 using GZip.Business;
 
 Console.Write("Please enter file path: ");
@@ -29,14 +29,17 @@ if (operation.Equals("c"))
         Console.WriteLine("Crypted text : " + cryptedContextString);
         Console.WriteLine("--------------------------------------------------------------------");
         Console.WriteLine("File size before compression: " + fileContext.Length + " byte");
-        Console.WriteLine("File size after compression: " + cryptedContext.Length / 8 + " byte");
 
         int lastIndex = filePath.LastIndexOf('\\');
         string basePath = filePath.Substring(0, lastIndex + 1);
         string newPath = basePath + "compressedFile";
-        //C:\Users\hasan_xo6cgp9\Desktop\test.txt
-        //C:\Users\hasan_xo6cgp9\Desktop\compressedFile
+        //C:\Users\s22987\Desktop\test.txt
+        //C:\Users\s22987\Desktop\compressedFile
         using FileStream fileStream = new(newPath, FileMode.Create);
+
+        using BinaryWriter binaryWriter = new(fileStream);
+        binaryWriter.Write(cryptedContext.Count);
+
         int bytesNeeded = cryptedContext.Count / 8;
         if (cryptedContext.Count % 8 > 0)
         {
@@ -50,14 +53,7 @@ if (operation.Equals("c"))
         var byteStringValue = string.Empty;
         foreach (bool bit in cryptedContext)
         {
-            if (bit)
-            {
-                byteStringValue += "1";
-            }
-            else if (!bit)
-            {
-                byteStringValue += "0";
-            }
+            byteStringValue += bit ? "1" : "0";
 
             bitIndex++;
             if (bitIndex == 8)
@@ -67,13 +63,14 @@ if (operation.Equals("c"))
                 bitIndex = 0;
                 byteStringValue = string.Empty;
             }
-            if (bitIndex == lastBitIndex && byteIndex == lastByteIndex && byteStringValue.Length < 8)
-            {
-                byteStringValue = byteStringValue.PadLeft(8, '0');
-                bytes[byteIndex] = Convert.ToByte(byteStringValue, 2);
-            }
+        }
+        if (byteStringValue.Length > 0)
+        {
+            byteStringValue = byteStringValue.PadLeft(8, '0');
+            bytes[byteIndex] = Convert.ToByte(byteStringValue, 2);
         }
         fileStream.Write(bytes, 0, bytesNeeded);
+        Console.WriteLine("File size after compression: " + bytes.Length + " byte");
     }
 
     catch (IOException e)
@@ -86,19 +83,29 @@ else if (operation.Equals("d"))
 {
     try
     {
-        byte[] fileBytes = File.ReadAllBytes(filePath);
+        using FileStream fileStream = new FileStream(filePath, FileMode.Open);
+        using BinaryReader binaryReader = new BinaryReader(fileStream);
+
+        int actualBitLength = binaryReader.ReadInt32();
+        byte[] fileBytes = binaryReader.ReadBytes((actualBitLength + 7) / 8);
+
+        int bitCount = 0;
+        string convertedText = string.Empty;
         foreach (byte b in fileBytes)
         {
-            // Byte'ı binary string'e çevirme
             string binaryString = Convert.ToString(b, 2).PadLeft(8, '0');
-
-            // Ekrana yazdırma
-            Console.WriteLine(binaryString);
+            if (bitCount + 8 > actualBitLength)
+            {
+                binaryString = binaryString.Substring(8 - (actualBitLength - bitCount));
+            }
+            convertedText += binaryString;
+            bitCount += 8;
         }
+        Console.WriteLine("Original Text: " + convertedText);
     }
     catch (IOException e)
     {
         Console.Write("The file could not be read: ");
-        Console.WriteLine(e.Message); ;
+        Console.WriteLine(e.Message);
     }
 }
