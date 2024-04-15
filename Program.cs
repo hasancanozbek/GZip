@@ -1,4 +1,4 @@
-﻿
+
 using GZip.Business;
 using System.Collections;
 
@@ -121,7 +121,7 @@ else if (operation.Equals("d"))
         //    bitCount += 8;
         //}
 
-        List<bool> bitArray = new List<bool>();
+        List<bool> bitArray = new();
         for (int i = 0; i < fileBytes.Length; i++)
         {
             for (int bit = 0; bit < 8; bit++)
