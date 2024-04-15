@@ -12,14 +12,18 @@ namespace GZip.Business
         private Dictionary<Token, string> codes;
         private BitArray encryptedContext;
 
-        public HuffmanEncryption(List<Token> TokenList)
+        public HuffmanEncryption()
         {
-            tokenList = TokenList;
             nodeList = new List<Node>();
             codes = new Dictionary<Token, string>();
         }
 
-        public BitArray EncryptContext()
+        public HuffmanEncryption(List<Token> TokenList) : this()
+        {
+            tokenList = TokenList;
+        }
+
+        public HuffmanResult EncryptContext()
         {
             findFrequencies();
             nodeListForArray = nodeList.ToList();
@@ -27,7 +31,12 @@ namespace GZip.Business
             buidTree();
             FindCodes(nodeList.First(), string.Empty);
             EncryptTokens();
-            return encryptedContext;
+            return new HuffmanResult()
+            {
+                BitArray = encryptedContext,
+                Codes = codes
+            };
+
         }
 
         private void findFrequencies()
@@ -94,7 +103,7 @@ namespace GZip.Business
         private void EncryptTokens()
         {
             var size = calculateBitArraySize();
-            
+
             encryptedContext = new BitArray(size);
 
             int index = 0;
@@ -126,6 +135,37 @@ namespace GZip.Business
                 size += codeSize * node.Frequency;
             }
             return size;
+        }
+
+        public string SerializeHuffmanCodes(Dictionary<Token, string> huffmanCodes)
+        {
+            return string.Join(";", huffmanCodes.Select(kvp => $"{SerializeToken(kvp.Key)}:{kvp.Value}"));
+        }
+
+        public Dictionary<Token, string> DeserializeHuffmanCodes(string serializedCodes)
+        {
+            return serializedCodes.Split(';')
+                .Select(part => part.Split(':'))
+                .ToDictionary(
+                    split => DeserializeToken(split[0]),
+                    split => split[1]
+                );
+        }
+
+        public string SerializeToken(Token token)
+        {
+            return $"{token.Offset},{token.TotalOfMatchedCharacters},{token.UnmatchedCharacter}";
+        }
+
+        public Token DeserializeToken(string serializedToken)
+        {
+            var parts = serializedToken.Split(',');
+            return new Token
+            {
+                Offset = Int16.Parse(parts[0]),
+                TotalOfMatchedCharacters = Int16.Parse(parts[1]),
+                UnmatchedCharacter = parts[2][0]
+            };
         }
 
     }

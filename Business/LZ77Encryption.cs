@@ -10,14 +10,18 @@ namespace GZip.Business
         private int lookAheadBufferSize;
         private char[] slidingWindow;
         private List<Token> tokens;
-        public LZ77Encryption(string FileContext)
+
+        public LZ77Encryption()
         {
-            fileContext = FileContext;
             fileContextIndex = 0;
             searchBufferSize = 7;
             lookAheadBufferSize = 6;
             slidingWindow = new char[searchBufferSize + lookAheadBufferSize];
             tokens = new List<Token>();
+        }
+        public LZ77Encryption(string FileContext) : this()
+        {
+            fileContext = FileContext;
         }
 
         public List<Token> EncryptContext()
