@@ -31,9 +31,15 @@ namespace GZip.Business
             buidTree();
             FindCodes(nodeList.First(), string.Empty);
             EncryptTokens();
+            //var orderedCodes = new Dictionary<Token, string>();
+            //foreach (var token in tokenList)
+            //{
+            //    orderedCodes.Add(token, codes[token]);
+            //}
             return new HuffmanResult()
             {
                 BitArray = encryptedContext,
+                //Codes = orderedCodes
                 Codes = codes
             };
 
@@ -43,7 +49,7 @@ namespace GZip.Business
         {
             foreach (var token in tokenList)
             {
-                Node node = nodeList.Find(f => f.Token == token);
+                Node? node = nodeList.FirstOrDefault(f => f.Token.Offset == token.Offset && f.Token.TotalOfMatchedCharacters == token.TotalOfMatchedCharacters && f.Token.UnmatchedCharacter == token.UnmatchedCharacter);
                 if (node != null)
                 {
                     node.Frequency++;
@@ -166,6 +172,31 @@ namespace GZip.Business
                 TotalOfMatchedCharacters = Int16.Parse(parts[1]),
                 UnmatchedCharacter = parts[2][0]
             };
+        }
+
+        public List<Token> DecodeHuffmanCode(string cryptedContext, Dictionary<Token, string> codes)
+        {
+
+            Dictionary<string, Token> reversedCodes = new Dictionary<string, Token>();
+            foreach (var pair in codes)
+            {
+                reversedCodes[pair.Value] = pair.Key;
+            }
+
+            var tokenList = new List<Token>();
+            string currentCode = string.Empty;
+            foreach (char bit in cryptedContext)
+            {
+                currentCode += bit;
+
+                if (reversedCodes.TryGetValue(currentCode, out Token token))
+                {
+                    tokenList.Add(token);
+                    currentCode = string.Empty;
+                }
+            }
+
+            return tokenList;
         }
 
     }
