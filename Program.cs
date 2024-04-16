@@ -1,5 +1,6 @@
 
 using GZip.Business;
+using GZip.Entity;
 using System.Collections;
 
 Console.Write("Please enter file path: ");
@@ -7,7 +8,7 @@ var filePath = Console.ReadLine();
 Console.Write("Please enter c to compress, enter d to decompress: ");
 var operation = Console.ReadLine();
 
-if (operation.Equals("c"))
+if (operation.ToLower().Equals("c"))
 {
     try
     {
@@ -37,10 +38,8 @@ if (operation.Equals("c"))
         int lastIndex = filePath.LastIndexOf('\\');
         string basePath = filePath.Substring(0, lastIndex + 1);
         string newPath = basePath + "compressedFile";
-        //C:\Users\s22987\Desktop\test.txt
-        //C:\Users\s22987\Desktop\compressedFile
-        using FileStream fileStream = new(newPath, FileMode.Create);
 
+        using FileStream fileStream = new(newPath, FileMode.Create);
         using BinaryWriter binaryWriter = new(fileStream);
 
         string serializedHuffmanCodes = huffman.SerializeHuffmanCodes(huffmanCodes);
@@ -90,7 +89,7 @@ if (operation.Equals("c"))
         Console.WriteLine(e.Message);
     }
 }
-else if (operation.Equals("d"))
+else if (operation.ToLower().Equals("d"))
 {
     try
     {
@@ -107,34 +106,36 @@ else if (operation.Equals("d"))
 
         int actualBitLength = binaryReader.ReadInt32();
         byte[] fileBytes = binaryReader.ReadBytes((actualBitLength + 7) / 8);
-
-        //int bitCount = 0;
-        //string convertedText = string.Empty;
-        //foreach (byte b in fileBytes)
-        //{
-        //    string binaryString = Convert.ToString(b, 2).PadLeft(8, '0');
-        //    if (bitCount + 8 > actualBitLength)
-        //    {
-        //        binaryString = binaryString.Substring(8 - (actualBitLength - bitCount));
-        //    }
-        //    convertedText += binaryString;
-        //    bitCount += 8;
-        //}
-
-        List<bool> bitArray = new();
-        for (int i = 0; i < fileBytes.Length; i++)
+        //
+        int bitCount = 0;
+        string convertedBitText = string.Empty;
+        foreach (byte b in fileBytes)
         {
-            for (int bit = 0; bit < 8; bit++)
+            string binaryString = Convert.ToString(b, 2).PadLeft(8, '0');
+            if (bitCount + 8 > actualBitLength)
             {
-                if (i * 8 + bit >= actualBitLength) break; // Do not read past the actual number of bits
-                bool bitValue = (fileBytes[i] & (1 << (7 - bit))) != 0;
-                bitArray.Add(bitValue);
+                binaryString = binaryString.Substring(8 - (actualBitLength - bitCount));
             }
+            convertedBitText += binaryString;
+            bitCount += 8;
         }
 
-        //string decodedText = huffman.Decode(bitArray, huffmanCodes);
+        //List<bool> bitArray = new();
+        //for (int i = 0; i < fileBytes.Length; i++)
+        //{
+        //    for (int bit = 0; bit < 8; bit++)
+        //    {
+        //        if (i * 8 + bit >= actualBitLength) break;
+        //        bool bitValue = (fileBytes[i] & (1 << (7 - bit))) != 0;
+        //        bitArray.Add(bitValue);
+        //    }
 
-        //Console.WriteLine("Original Text: " + decodedText);
+        //}
+
+        List<Token> decodedTokenList = huffman.DecodeHuffmanCode(convertedBitText, huffmanCodes);
+        string decodedText = lz77.DecodeToken(decodedTokenList);
+
+        Console.WriteLine("Original Text: " + decodedText);
     }
     catch (IOException e)
     {
@@ -142,3 +143,5 @@ else if (operation.Equals("d"))
         Console.WriteLine(e.Message);
     }
 }
+//C:\Users\s22987\Desktop\test.txt
+//C:\Users\s22987\Desktop\compressedFile
