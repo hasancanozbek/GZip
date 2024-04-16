@@ -144,4 +144,8 @@ else if (operation.ToLower().Equals("d"))
     }
 }
 //C:\Users\s22987\Desktop\test.txt
+<<<<<<< HEAD
 //C:\Users\s22987\Desktop\compressedFile
+=======
+//C:\Users\s22987\Desktop\compressedFile
+>>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f

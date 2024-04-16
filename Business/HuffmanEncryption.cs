@@ -1,4 +1,4 @@
-﻿using GZip.Entity;
+using GZip.Entity;
 using System.Collections;
 using System.Reflection.Metadata.Ecma335;
 

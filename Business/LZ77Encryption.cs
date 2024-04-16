@@ -1,4 +1,4 @@
-﻿using GZip.Entity;
+using GZip.Entity;
 
 namespace GZip.Business
 {
@@ -105,7 +105,11 @@ namespace GZip.Business
                             {
                                 i = searchBufferSize;
                             }
+<<<<<<< HEAD
                         }
+=======
+                        }                    
+>>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f
                     }
                     if (tempMatchedCharacters > matchedCharacters)
                     {
@@ -114,11 +118,16 @@ namespace GZip.Business
                         char unmatchedCharacter;
                         if (matchedCharacters == lookAheadBufferSize)
                         {
+<<<<<<< HEAD
                             //unmatchedCharacter = slidingWindow[searchBufferSize + lookAheadBufferSize - 1];
                             unmatchedCharacter = fileContext[fileContextIndex];
                             fileContextIndex++;
                             matchedCharacters = (short)(lookAheadBufferSize);
                             //matchedCharacters = (short)(lookAheadBufferSize - 1);
+=======
+                            unmatchedCharacter = slidingWindow[searchBufferSize + lookAheadBufferSize - 1];
+                            matchedCharacters = (short)(lookAheadBufferSize - 1);
+>>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f
                         }
                         else
                         {
@@ -167,7 +176,11 @@ namespace GZip.Business
                 {
                     decodedText += token.UnmatchedCharacter;
                 }
+<<<<<<< HEAD
                 else if (decodedText.Length >= token.Offset)
+=======
+                else if (decodedText.Length > token.Offset)
+>>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f
                 {
                     var index = decodedText.Length - token.Offset;
                     for (var i = index; i < index + token.TotalOfMatchedCharacters; i++)
@@ -175,6 +188,10 @@ namespace GZip.Business
                         decodedText += decodedText[i];
                     }
                     decodedText += token.UnmatchedCharacter.ToString();
+<<<<<<< HEAD
+=======
+                    index = 0;
+>>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f
                 }
             }
             return decodedText;
