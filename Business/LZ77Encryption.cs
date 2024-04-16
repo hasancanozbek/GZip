@@ -1,4 +1,4 @@
-﻿using GZip.Entity;
+using GZip.Entity;
 
 namespace GZip.Business
 {
@@ -95,23 +95,38 @@ namespace GZip.Business
                     tempMatchedCharacters = 1;
                     for (int i = index + 1; i < searchBufferSize; i++)
                     {
-                        if (slidingWindow[i].Equals(slidingWindow[searchBufferSize + tempMatchedCharacters]))
+                        if (tempMatchedCharacters != lookAheadBufferSize)
                         {
-                            tempMatchedCharacters++;
-                        }
-                        else
-                        {
-                            i = searchBufferSize;
-                        }
+                            if (slidingWindow[i].Equals(slidingWindow[searchBufferSize + tempMatchedCharacters]))
+                            {
+                                tempMatchedCharacters++;
+                            }
+                            else
+                            {
+                                i = searchBufferSize;
+                            }
+                        }                    
                     }
                     if (tempMatchedCharacters > matchedCharacters)
                     {
                         matchedCharacters = tempMatchedCharacters;
+
+                        char unmatchedCharacter;
+                        if (matchedCharacters == lookAheadBufferSize)
+                        {
+                            unmatchedCharacter = slidingWindow[searchBufferSize + lookAheadBufferSize - 1];
+                            matchedCharacters = (short)(lookAheadBufferSize - 1);
+                        }
+                        else
+                        {
+                            unmatchedCharacter = slidingWindow[searchBufferSize + matchedCharacters];
+                        }
+
                         token = new Token()
                         {
                             Offset = (short)(searchBufferSize - index),
                             TotalOfMatchedCharacters = matchedCharacters,
-                            UnmatchedCharacter = slidingWindow[searchBufferSize + matchedCharacters]
+                            UnmatchedCharacter = unmatchedCharacter
                         };
                     }
                 }
@@ -123,7 +138,7 @@ namespace GZip.Business
                 {
                     Offset = 0,
                     TotalOfMatchedCharacters = 0,
-                    UnmatchedCharacter = slidingWindow[searchBufferSize],
+                    UnmatchedCharacter = slidingWindow[searchBufferSize]
                 };
             }
             return token;
@@ -132,11 +147,35 @@ namespace GZip.Business
 
         private bool IsLookAheadBufferNotNull()
         {
-            if (slidingWindow[searchBufferSize - 1] != '\0' || slidingWindow[searchBufferSize] != '\0')
+            if ((slidingWindow[searchBufferSize - 1] != '\0' && slidingWindow[searchBufferSize] != '\0') ||
+                 (slidingWindow[searchBufferSize - 1] == '\0' && slidingWindow[searchBufferSize] != '\0'))
             {
                 return true;
             }
             return false;
+        }
+
+        public string DecodeToken(List<Token> decodedTokenList)
+        {
+            var decodedText = string.Empty;
+            foreach (var token in decodedTokenList)
+            {
+                if (token.Offset == 0)
+                {
+                    decodedText += token.UnmatchedCharacter;
+                }
+                else if (decodedText.Length > token.Offset)
+                {
+                    var index = decodedText.Length - token.Offset;
+                    for (var i = index; i < index + token.TotalOfMatchedCharacters; i++)
+                    {
+                        decodedText += decodedText[i];
+                    }
+                    decodedText += token.UnmatchedCharacter.ToString();
+                    index = 0;
+                }
+            }
+            return decodedText;
         }
     }
 }
