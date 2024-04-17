@@ -1,6 +1,5 @@
 using GZip.Entity;
 using System.Collections;
-using System.Reflection.Metadata.Ecma335;
 
 namespace GZip.Business
 {
@@ -16,6 +15,7 @@ namespace GZip.Business
         {
             nodeList = new List<Node>();
             codes = new Dictionary<Token, string>();
+            nodeListForArray = new List<Node>();
         }
 
         public HuffmanEncryption(List<Token> TokenList) : this()
