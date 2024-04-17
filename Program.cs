@@ -1,6 +1,5 @@
 using GZip.Business;
 using GZip.Entity;
-var isExit = false;
 
 while (true)
 {
