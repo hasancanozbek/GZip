@@ -14,8 +14,8 @@ namespace GZip.Business
         public LZ77Encryption()
         {
             fileContextIndex = 0;
-            searchBufferSize = 7;
-            lookAheadBufferSize = 6;
+            searchBufferSize = 64;
+            lookAheadBufferSize = 63;
             slidingWindow = new char[searchBufferSize + lookAheadBufferSize];
             tokens = new List<Token>();
         }
@@ -54,8 +54,11 @@ namespace GZip.Business
         {
             for (int i = searchBufferSize; i < slidingWindow.Length; i++)
             {
-                slidingWindow[i] = fileContext[fileContextIndex];
-                fileContextIndex++;
+                if(fileContext.Length > fileContextIndex)
+                {
+                    slidingWindow[i] = fileContext[fileContextIndex];
+                    fileContextIndex++;
+                }
             }
         }
 
@@ -105,29 +108,20 @@ namespace GZip.Business
                             {
                                 i = searchBufferSize;
                             }
-<<<<<<< HEAD
                         }
-=======
-                        }                    
->>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f
                     }
                     if (tempMatchedCharacters > matchedCharacters)
                     {
                         matchedCharacters = tempMatchedCharacters;
-
-                        char unmatchedCharacter;
+                        short offset = (short)(searchBufferSize - index);
+                        char unmatchedCharacter = default;
                         if (matchedCharacters == lookAheadBufferSize)
                         {
-<<<<<<< HEAD
-                            //unmatchedCharacter = slidingWindow[searchBufferSize + lookAheadBufferSize - 1];
-                            unmatchedCharacter = fileContext[fileContextIndex];
-                            fileContextIndex++;
-                            matchedCharacters = (short)(lookAheadBufferSize);
-                            //matchedCharacters = (short)(lookAheadBufferSize - 1);
-=======
-                            unmatchedCharacter = slidingWindow[searchBufferSize + lookAheadBufferSize - 1];
-                            matchedCharacters = (short)(lookAheadBufferSize - 1);
->>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f
+                            offset = (short)lookAheadBufferSize;
+                            if (fileContextIndex < fileContext.Length)
+                            {
+                                unmatchedCharacter = fileContext[fileContextIndex];
+                            }
                         }
                         else
                         {
@@ -136,7 +130,7 @@ namespace GZip.Business
 
                         token = new Token()
                         {
-                            Offset = (short)(searchBufferSize - index),
+                            Offset = offset,
                             TotalOfMatchedCharacters = matchedCharacters,
                             UnmatchedCharacter = unmatchedCharacter
                         };
@@ -176,11 +170,7 @@ namespace GZip.Business
                 {
                     decodedText += token.UnmatchedCharacter;
                 }
-<<<<<<< HEAD
                 else if (decodedText.Length >= token.Offset)
-=======
-                else if (decodedText.Length > token.Offset)
->>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f
                 {
                     var index = decodedText.Length - token.Offset;
                     for (var i = index; i < index + token.TotalOfMatchedCharacters; i++)
@@ -188,10 +178,6 @@ namespace GZip.Business
                         decodedText += decodedText[i];
                     }
                     decodedText += token.UnmatchedCharacter.ToString();
-<<<<<<< HEAD
-=======
-                    index = 0;
->>>>>>> 9a15d5285e5dfceaa00e2c8110f1b2e4c2cc607f
                 }
             }
             return decodedText;
