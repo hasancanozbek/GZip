@@ -15,13 +15,15 @@ namespace GZip.Business
         {
             fileContextIndex = 0;
             searchBufferSize = 64;
-            lookAheadBufferSize = 63;
+            lookAheadBufferSize = 64;
             slidingWindow = new char[searchBufferSize + lookAheadBufferSize];
             tokens = new List<Token>();
         }
-        public LZ77Encryption(string FileContext) : this()
+        public LZ77Encryption(string FileContext, int searchBufferSize = 64, int lookAheadBufferSize = 64) : this()
         {
             fileContext = FileContext;
+            this.searchBufferSize = searchBufferSize;
+            this.lookAheadBufferSize = lookAheadBufferSize;
         }
 
         public List<Token> EncryptContext()

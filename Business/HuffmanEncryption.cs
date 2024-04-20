@@ -115,9 +115,10 @@ namespace GZip.Business
             int index = 0;
             foreach (var token in tokenList)
             {
-                if (codes.ContainsKey(token))
+                var codeKey = codes.Keys.FirstOrDefault(f => f.Offset == token.Offset && f.TotalOfMatchedCharacters == token.TotalOfMatchedCharacters && f.UnmatchedCharacter == token.UnmatchedCharacter);
+                if (codeKey != null)
                 {
-                    var code = codes[token];
+                    var code = codes[codeKey];
                     for (int i = 0; i < code.Length; i++)
                     {
                         var currentBit = code.ElementAt(i);
