@@ -32,8 +32,7 @@ while (true)
             }
 
             Console.WriteLine("Crypted text : " + cryptedContextString);
-            //Console.WriteLine("--------------------------------------------------------------------");
-            //Console.WriteLine("File size before compression: " + fileContext.Length + " byte");
+            Console.WriteLine("--------------------------------------------------------------------");
 
             int lastIndex = filePath.LastIndexOf('\\');
             string basePath = filePath.Substring(0, lastIndex + 1);
@@ -80,8 +79,6 @@ while (true)
                 bytes[byteIndex] = Convert.ToByte(byteStringValue, 2);
             }
             fileStream.Write(bytes, 0, bytesNeeded);
-            long fileSize = new System.IO.FileInfo(filePath).Length;
-            //Console.WriteLine("File size after compression: " + fileSize + " byte");
         }
 
         catch (IOException e)
@@ -124,7 +121,11 @@ while (true)
             List<Token> decodedTokenList = huffman.DecodeHuffmanCode(convertedBitText, huffmanCodes);
             string decodedText = lz77.DecodeToken(decodedTokenList);
 
-            Console.WriteLine("Original Text: " + decodedText);
+            int lastIndex = filePath.LastIndexOf('\\');
+            string basePath = filePath.Substring(0, lastIndex + 1);
+            string newPath = basePath + "decompressedFile.txt";
+            using StreamWriter writer = new(newPath);
+            writer.Write(decodedText);
         }
         catch (IOException e)
         {
@@ -133,6 +134,3 @@ while (true)
         }
     }
 }
-
-//C:\Users\s22987\Desktop\test.txt
-//C:\Users\s22987\Desktop\compressedFile

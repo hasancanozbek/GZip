@@ -66,8 +66,8 @@ namespace GZip.Business
 
         private void slideWindow(int slidingStep)
         {
-            // Slide the window to left by specified step
             var tempArray = slidingWindow.ToArray();
+            // Slide the window to left by specified step
             for (int i = slidingWindow.Length - 1; i - slidingStep >= 0; i--)
             {
                 slidingWindow[i - slidingStep] = tempArray[i];
